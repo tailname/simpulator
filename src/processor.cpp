@@ -2,9 +2,31 @@
 
 
 void Processor::execute() {
+    data_t current_instruction_word;
     while(is_running) {
         wait();
+        mem_read(pc, current_instruction_word); // Read instruction from memory
+        Instruction inst;
+        inst.decode(current_instruction_word); // Decode the instruction
 
+        pc += sizeof(data_t); // Increment the program counter
+        switch (inst.opcode) {
+            case LOAD:
+                mem_read(inst.address, registers[inst.reg_dst]); // Load data from memory to register
+                break;
+            case STORE:
+                mem_write(inst.address, registers[inst.reg_src]); // Store data from register to memory
+                break;
+            case ADD:
+                registers[inst.reg_dst] = registers[inst.reg_src] + registers[inst.reg_src2]; // Add two registers and store the result in the destination register
+                break;
+            case HaLT:
+                is_running = false; // Stop execution
+            default:
+                SC_REPORT_ERROR("Processor", "Unknown instruction opcode");
+                break;
+        }
+        
     }
 };
 
