@@ -9,10 +9,10 @@ SC_MODULE(TestBench) {
     simple_initiator_socket<TestBench> initiator_socket;
     
     SC_CTOR(TestBench) : initiator_socket("initiator_socket") {
-        SC_THREAD(test_process);
+        SC_THREAD(test_memory);
     }
     
  private:
-        void test_process();
+        void test_memory();
 };
     

@@ -1,6 +1,6 @@
 #include "TestBench.h"
 
-void TestBench::test_process() {
+void TestBench::test_memory() {
     tlm_generic_payload trans;
     sc_time delay = SC_ZERO_TIME;
     unsigned char data[4];

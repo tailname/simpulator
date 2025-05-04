@@ -94,3 +94,11 @@ void Processor::mem_write(addr_t address, data_t data) {
     wait(delay);
 
 };
+
+void Processor::print_registers() {
+    std::cout << "Registers: ";
+    for (size_t i = 0; i < registers.size(); ++i) {
+        std::cout << "R" << i << ": " << registers[i] << " ";
+    }
+    std::cout << std::endl;
+}
