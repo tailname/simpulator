@@ -20,10 +20,11 @@ void Processor::execute() {
             case ADD:
                 registers[inst.reg_dst] = registers[inst.reg_src] + registers[inst.reg_src2]; // Add two registers and store the result in the destination register
                 break;
-            case HaLT:
+            case HALT:
                 is_running = false; // Stop execution
             default:
                 SC_REPORT_ERROR("Processor", "Unknown instruction opcode");
+                is_running = false; 
                 break;
         }
         

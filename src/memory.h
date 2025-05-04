@@ -7,9 +7,6 @@ SC_MODULE(Memory) {
     // Define the target socket
     tlm_utils::simple_target_socket<Memory> socket; 
 
-
-    
-    
     SC_CTOR(Memory) : socket("socket") {
         socket.register_b_transport(this, &Memory::b_transport);
     }

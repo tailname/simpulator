@@ -25,4 +25,4 @@ void Memory::b_transport(tlm_generic_payload& trans, sc_time& delay) {
 
     delay += sc_time(10, SC_NS); // Simulate a delay
 
-}
+};
