@@ -9,7 +9,7 @@ void Memory::b_transport(tlm_generic_payload& trans, sc_time& delay) {
     unsigned int len = trans.get_data_length();
 
 
-    if (addr + len >= SIZE) {
+    if (addr + len >= MAX_MEMORY_SIZE) {
         SC_REPORT_ERROR("Memory", "Address out of range");
     }
 

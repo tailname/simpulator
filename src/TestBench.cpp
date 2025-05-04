@@ -35,11 +35,17 @@ void TestBench::test_memory() {
 
     // third test, read invalid address
     trans.set_command(TLM_READ_COMMAND);
-    trans.set_address(MAX_MEMORY_SIZE + 1); // out of range address
-    trans.set_data_length(4);
-    trans.set_response_status(TLM_INCOMPLETE_RESPONSE);
+    try {
+        trans.set_address(MAX_MEMORY_SIZE + 1); // out of range address
+        trans.set_data_length(4);
+        trans.set_response_status(TLM_INCOMPLETE_RESPONSE);
 
-    initiator_socket->b_transport(trans, delay);
+        initiator_socket->b_transport(trans, delay);
+    } catch (const std::exception& e) {
+        std::cout << "The third test was completed successfully" << std::endl;
+    }
+    
+    
     
     if (!trans.is_response_ok()) {
         std::cout << "Address error detected at time " << sc_time_stamp() << std::endl;
