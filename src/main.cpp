@@ -1,45 +1,35 @@
+#define SC_INCLUDE_DYNAMIC_PROCESSES
 #include <systemc.h> 
+#include <tlm.h>
+#include <tlm_utils/simple_initiator_socket.h>
+#include <tlm_utils/simple_target_socket.h>
 #include <iostream>
+
 using namespace sc_core;
 using namespace sc_dt;
 
-
-SC_MODULE(Counter){
-    sc_in<bool> clk;
-    sc_in<bool> reset; 
-    sc_in<bool> enable; 
-    sc_out<sc_uint<4>> count; 
-    
-    sc_uint<4> count_value; 
-
-    void Increment() {
-        while(true) {
-            wait(); 
-            if(reset.read()) {
-                count_value = 0; 
-            } else if(enable.read()) {
-                count_value++; 
-            }
-            count.write(count_value); 
-        }
-            
-    }
-    
-
-    void PrintCount() {
-        while(true) {
-            wait(); 
-            std::cout << "Count: " << count.read() << std::endl; 
-        }
+class Memory : public sc_module {
+ public:
+    tlm_utils::simple_target_socket<Memory> socket; 
+    SC_CTOR(Memory) : socket("socket") {
     }
 
-    SC_CTOR(Counter) {
-        SC_CTHREAD(Increment,clk.pos()); 
-        
-        
+    
+};
+class Initiator : public sc_module {
+ public:
+    tlm_utils::simple_initiator_socket<Initiator> socket; 
+    SC_CTOR(Initiator) : socket("socket") {
+    }
+};
 
-        SC_THREAD(PrintCount);
-        sensitive << count;
+SC_MODULE(Top){
+    Memory* memory;
+    Initiator* initiator;
+    SC_CTOR(Top){
+        memory = new Memory("Memory");
+        initiator = new Initiator("Initiator");
+        initiator->socket.bind(memory->socket); 
     }
 };
 
@@ -47,37 +37,14 @@ SC_MODULE(Counter){
 int sc_main(int argc, char* argv[]) {
    
     
-    sc_signal<bool> clock;
-    sc_signal<bool> reset; 
-    sc_signal<bool> enable; 
-    sc_signal<sc_uint<4>> count_value; 
+    
+    
 
-    Counter counter("Counter"); 
-    counter.clk(clock); 
-    counter.reset(reset); 
-    counter.enable(enable); 
-    counter.count(count_value); 
-    reset = 1;
-    enable = 0;
+
+
+    Top top("Top");
     sc_start(0, SC_MS); 
-
-
-
-    for (int i = 0; i < 10; i++) {
-        clock = 0;
-        sc_start(1, SC_MS); 
-        clock = 1;
-        sc_start(1, SC_MS); 
-    }
-    reset = 0; 
-    enable = 1; 
-    for (int i = 0; i < 10; i++) {
-        clock = 0;
-        sc_start(1, SC_MS); 
-        clock = 1;
-        sc_start(1, SC_MS); 
-    }
-
+    //sc_start(1, SC_MS);
    
     sc_stop(); 
     return 0; 
