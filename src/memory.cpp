@@ -1,5 +1,7 @@
 #include "memory.h"
-void Memory::b_transport(tlm::tlm_generic_payload& trans, sc_time& delay) {
+
+
+void Memory::b_transport(tlm_generic_payload& trans, sc_time& delay) {
     // Get the address and data from the transaction
     tlm_command cmd = trans.get_command();
     uint64 addr = trans.get_address();

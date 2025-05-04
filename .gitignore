@@ -52,6 +52,7 @@ _deps
 CMakeUserPresets.json
 
 # External projects
+simulation
 *-prefix/
 
 ### Linux ###
