@@ -37,12 +37,12 @@ int sc_main(int argc, char* argv[]) {
     test->mem_socket.bind(memory->bench_socket);
     processor->mem_socket.bind(memory->proc_socket);
 
-    for(int i = 0; i < 1000; ++i) {
+    for(int i = 0; i < 25; ++i) {
         std::cout << "Simulation time: " << sc_time_stamp() << std::endl;
         sc_start(10, SC_NS); // Run for 10 ns
     }
     
-    //sc_stop(); 
+    sc_stop(); 
 
     delete processor;
     delete memory;

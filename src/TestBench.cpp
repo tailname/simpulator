@@ -124,7 +124,7 @@ void TestBench::load_program(addr_t start_addr) {
 
     for (size_t i = 0; i < program.size(); ++i) {
         data_t encoded_inst = encode_instruction(program[i]);
-        mem_write(start_addr + i * sizeof(data_t), encoded_inst); // Write instruction to memory
+        mem_write(start_addr + i * DATA_WIDTH, encoded_inst); // Write instruction to memory
     }
 };
 
@@ -132,18 +132,16 @@ void TestBench::mem_write(addr_t address, data_t data) {
     tlm_generic_payload trans;
     sc_time delay = SC_ZERO_TIME;
     unsigned char data_ptr[sizeof(data_t)];
-    auto b = data.to_int();
-    auto a = sizeof(data_t);
-    memccpy(data_ptr, &data, 0, sizeof(data_t)); // Copy data to data
+    memccpy(data_ptr, &data, 0, DATA_WIDTH); // Copy data to data
 
     trans.set_command(TLM_WRITE_COMMAND);
     trans.set_address(address);
     trans.set_data_ptr(data_ptr);
-    trans.set_data_length(sizeof(data_t));
+    trans.set_data_length(DATA_WIDTH);
     trans.set_response_status(TLM_INCOMPLETE_RESPONSE);
 
     mem_socket->b_transport(trans, delay);
-
+   
     if (trans.is_response_ok()) {
         std::cout << "Write successful at time " << sc_time_stamp() << std::endl;
     }
