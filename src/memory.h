@@ -4,7 +4,7 @@
 SC_MODULE(Memory) {
  public:
     // Define the target socket
-    tlm_utils::simple_target_socket<Memory> socket; 
+    simple_target_socket<Memory> socket; 
 
     SC_CTOR(Memory) : socket("socket") {
         memory.resize(MAX_MEMORY_SIZE, 0); 
