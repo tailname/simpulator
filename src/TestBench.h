@@ -12,9 +12,13 @@ SC_MODULE(TestBench) {
     sc_out<bool> rst;
     sc_out<bool> start_signal;
     sc_out<addr_t> start_address;
+    sc_in<bool> clk;
 
     SC_CTOR(TestBench) : mem_socket("mem_socket") {
-        SC_THREAD(test_memory);
+        //SC_THREAD(test_memory);
+        
+        SC_THREAD(test_processor);
+        sensitive << clk.pos();
     }
     
  private:

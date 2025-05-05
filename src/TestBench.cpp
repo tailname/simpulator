@@ -43,6 +43,7 @@ void TestBench::test_memory() {
         mem_socket->b_transport(trans, delay);
     } catch (const std::exception& e) {
         std::cout << "The third test was completed successfully" << std::endl;
+        return;
     }
     
     
@@ -61,10 +62,10 @@ void TestBench::test_processor() {
     start_signal.write(false);
     start_address.write(0);
     std::cout << sc_time_stamp() << ": Asserting reset..." << std::endl;
-    wait(100, SC_NS); // wait for reset to be asserted
+    wait(); // wait for reset to be asserted
     rst.write(false);
     std::cout << sc_time_stamp() << ": Deasserting reset." << std::endl;
-    wait(10, SC_NS); // wait for reset to be deasserted
+    wait(); // wait for reset to be deasserted
 
     // 2. load program into memory
     addr_t prog_start_addr = 0x0; 
@@ -72,10 +73,10 @@ void TestBench::test_processor() {
 
     // 3. send start signal to processor
     start_address.write(prog_start_addr);
-    wait(1, SC_NS); 
+    wait(); 
     std::cout << sc_time_stamp() << ": Sending start signal (address 0x" << std::hex << prog_start_addr << ")..." << std::endl;
     start_signal.write(true);
-    wait(10, SC_NS);
+    wait();
     start_signal.write(false);
 
     // 4. wait for processor to finish execution
@@ -131,6 +132,8 @@ void TestBench::mem_write(addr_t address, data_t data) {
     tlm_generic_payload trans;
     sc_time delay = SC_ZERO_TIME;
     unsigned char data_ptr[sizeof(data_t)];
+    auto b = data.to_int();
+    auto a = sizeof(data_t);
     memccpy(data_ptr, &data, 0, sizeof(data_t)); // Copy data to data
 
     trans.set_command(TLM_WRITE_COMMAND);

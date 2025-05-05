@@ -4,11 +4,13 @@
 SC_MODULE(Memory) {
  public:
     // Define the target socket
-    simple_target_socket<Memory> socket; 
+    simple_target_socket<Memory> proc_socket; 
+    simple_target_socket<Memory> bench_socket;
 
-    SC_CTOR(Memory) : socket("socket") {
+    SC_CTOR(Memory) : proc_socket("proc_socket"), bench_socket("bench_socket") {
         memory.resize(MAX_MEMORY_SIZE, 0); 
-        socket.register_b_transport(this, &Memory::b_transport);
+        proc_socket.register_b_transport(this, &Memory::b_transport);
+        bench_socket.register_b_transport(this, &Memory::b_transport);
     }
 
 
