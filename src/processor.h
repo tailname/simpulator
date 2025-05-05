@@ -16,7 +16,8 @@ SC_MODULE(Processor) {
         dont_initialize();
 
         SC_METHOD(handle_start);
-        sensitive << start_signal.pos(); // Assuming start_signal is a sc_signal<bool> defined in the class
+        sensitive << start_signal.pos() << reset_signal.neg();
+
         dont_initialize();
     }
     void print_registers();

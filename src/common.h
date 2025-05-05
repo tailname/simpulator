@@ -18,7 +18,7 @@ using namespace tlm_utils;
 #define REG_WIDTH 4 // Register width in bits
 #define ADDR_WIDTH 16 // Address width in bits
 #define DATA_WIDTH 32 // Data width in bits
-#define INSTRUCTION_WIDTH 2 // Instruction width in bits
+#define INSTRUCTION_WIDTH 4 // Instruction width in bits
 
 
 
@@ -43,13 +43,12 @@ struct Instruction {
         InstructionType instruction   = static_cast<InstructionType>((raw_inst >> (DATA_WIDTH - INSTRUCTION_WIDTH)));
         reg_dst  = ((raw_inst << INSTRUCTION_WIDTH) >> (DATA_WIDTH - REG_WIDTH) ) & 0xF;
         reg_src  = ((raw_inst << (INSTRUCTION_WIDTH + REG_WIDTH)) >> (DATA_WIDTH - REG_WIDTH*2)) & 0xF;
-        
         if (instruction == ADD) {
-            reg_src2 = (raw_inst >> 0) & 0xF; // Last 4 bits for reg_src2
+            reg_src2 = ((raw_inst << (INSTRUCTION_WIDTH + REG_WIDTH*2)) >> (DATA_WIDTH - REG_WIDTH*3)) & 0xF; // see the Redme
             address = 0; // default to 0 for ADD instruction
        } else {
             reg_src2 = 0; // default to 0 for LOAD and STORE instructions
-            address  = raw_inst & 0xFFFFF; // Last 20 bits for address
+            address  = (raw_inst << INSTRUCTION_WIDTH) >> (DATA_WIDTH - ADDR_WIDTH) & 0xFF; 
        }
     }
 };

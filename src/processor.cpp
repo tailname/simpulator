@@ -32,14 +32,15 @@ void Processor::execute() {
 };
 
 void Processor::handle_start() {
-    
-    if (start_signal.read()) {
-        
-        pc = start_address.read(); // Read the start address from the input port
-        registers.resize(REG_COUNT, 0); 
-        is_running = true; 
-        
+    registers.resize(REG_COUNT, 0); 
+
+    if(reset_signal.read()) {
+        is_running = false; // Stop execution on reset
+        pc = 0;
+        return;
     }
+    pc = start_address.read(); 
+    is_running = true;     
 };
 
 void Processor::mem_read(addr_t address, data_t& data) {
