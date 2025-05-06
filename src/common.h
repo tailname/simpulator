@@ -43,20 +43,28 @@ struct Instruction {
     addr_t address; // for LOAD and STORE instructions
 
     void decode(data_t raw_inst) {
+        reg_dst  = 0;
+        reg_src  = 0;
+        reg_src2 = 0; 
+        address  = 0;
         opcode   = static_cast<InstructionType>((raw_inst >> (DATA_WIDTH - INSTRUCTION_WIDTH)));
-        reg_dst  = ((raw_inst << INSTRUCTION_WIDTH) >> (DATA_WIDTH - REG_WIDTH +) ) & 0xF;
-        reg_src  = ((raw_inst << (INSTRUCTION_WIDTH + REG_WIDTH)) >> (DATA_WIDTH - REG_WIDTH*2)) & 0xF;
         if (opcode == ADD) {
-            reg_src2 = ((raw_inst << (INSTRUCTION_WIDTH + REG_WIDTH*2)) >> (DATA_WIDTH - REG_WIDTH*3)) & 0xF; // see the Redme
-            address = 0; // default to 0 for ADD instruction
+            reg_dst  = ((raw_inst << INSTRUCTION_WIDTH) >> (DATA_WIDTH - REG_WIDTH) ) & 0xF;
+            reg_src  = ((raw_inst << (INSTRUCTION_WIDTH + REG_WIDTH)) >> (DATA_WIDTH - REG_WIDTH)) & 0xF;
+            reg_src2 = ((raw_inst << (INSTRUCTION_WIDTH + REG_WIDTH*2)) >> (DATA_WIDTH - REG_WIDTH)) & 0xF; // see the Redme
        } else if (opcode == STORE) {
-            reg_src2 = 0; // default to 0 for LOAD and STORE instructions
             address  = (raw_inst << INSTRUCTION_WIDTH) >> (DATA_WIDTH - ADDR_WIDTH) & 0xFFF; 
-            cout<<"Decode Address: " << address << endl;
+            reg_src  = ((raw_inst << (INSTRUCTION_WIDTH + ADDR_WIDTH)) >> (DATA_WIDTH - REG_WIDTH)) & 0xF;
+       }
+       else if(opcode == LOAD) {
+            reg_dst  = ((raw_inst << INSTRUCTION_WIDTH) >> (DATA_WIDTH - REG_WIDTH) ) & 0xF;
+            address  = (raw_inst << (INSTRUCTION_WIDTH + REG_WIDTH) ) >> (DATA_WIDTH - ADDR_WIDTH) & 0xFFF;
+       }
+       else if(opcode == HALT) {
+            // No additional fields for HALT instruction
        }
        else {
-            reg_src2 = 0; // default to 0 for LOAD and STORE instructions
-            address  = (raw_inst << (INSTRUCTION_WIDTH + ADDR_WIDTH) ) >> (DATA_WIDTH - ADDR_WIDTH) & 0xFFF;
+            std::cerr << "Unknown instruction type" << std::endl;
        }
     }
 };

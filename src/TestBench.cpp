@@ -82,7 +82,7 @@ void TestBench::test_processor() {
     
   
     wait(5000, SC_NS); // wait for a while to let the processor execute
-
+    
     std::cout << sc_time_stamp() << ": Testbench finished. Stopping simulation." << std::endl;
     
 };
@@ -166,10 +166,7 @@ void TestBench::test_encoder(){
     data_t encoded_inst3 = encode_instruction(inst3);
     data_t encoded_inst4 = encode_instruction(inst4);
 
-    cout<< "Encoded instruction 1: " << encoded_inst1 << endl;
-    cout<< "Encoded instruction 2: " << encoded_inst2 << endl;
-    cout<< "Encoded instruction 3: " << encoded_inst3 << endl;
-    cout<< "Encoded instruction 4: " << encoded_inst4 << endl;
+  
 
     assert(encoded_inst1 == 0b0000'0000'0000000000010000'00000000); // Check the encoding of LOAD instruction
     assert(encoded_inst2 == 0b0010'0001'0000'0010'00000000'00000000); // Check the encoding of ADD instruction
@@ -188,13 +185,25 @@ void TestBench::test_decoder() {
     Instruction decoded_inst4;
 
     decoded_inst1.decode(0b0000'0000'0000000000010000'00000000);
-    decoded_inst2.decode(0b0010'0001'0000'0010'00000000'00000000);
+    decoded_inst2.decode(0b0010'0001'0011'0010'00000000'00000000);
     decoded_inst3.decode(0b0001'0000000000100000'0001'00000000);
-    decoded_inst4.decode(0b0011'00000000000000000000000000000);
+    decoded_inst4.decode(0b0011'0000'0000'0000'0000'0000'0000'0000);
+
+    //first check the opcode
+    assert(decoded_inst1.opcode == LOAD); 
+    assert(decoded_inst1.address == 0x10);
+    assert( decoded_inst1.reg_dst == 0); 
     
-    assert(decoded_inst1.opcode == LOAD && decoded_inst1.reg_dst == 0 && decoded_inst1.address == 0x10); // Check the decoding of LOAD instruction
-    assert(decoded_inst2.opcode == ADD && decoded_inst2.reg_dst == 1 && decoded_inst2.reg_src == 2); // Check the decoding of ADD instruction
-    assert(decoded_inst3.opcode == STORE && decoded_inst3.reg_src == 1 && decoded_inst3.address == 0x20); // Check the decoding of STORE instruction
+
+    assert(decoded_inst2.opcode == ADD);
+    assert(decoded_inst2.reg_dst == 1); // Check the decoding of ADD instruction
+    assert(decoded_inst2.reg_src == 3); // Check the decoding of ADD instruction
+    assert(decoded_inst2.reg_src2 == 2); // Check the decoding of ADD instruction
+
+    assert(decoded_inst3.opcode == STORE);
+    assert(decoded_inst3.reg_src == 1); // Check the decoding of STORE instruction
+    assert(decoded_inst3.address == 0x20); // Check the decoding of STORE instruction
+    
     assert(decoded_inst4.opcode == HALT); // Check the decoding of HALT instruction
 }
 
@@ -212,6 +221,10 @@ void TestBench::test_decoder() {
 void TestBench::store_program() {
 
     program.push_back({LOAD, 1, 0, 0, DATA_LOCATION_IN_MEMORY}); // Load first number
-    program.push_back({STORE, 0, 1, 0, DATA_LOCATION_IN_MEMORY}); // Store the result
+    program.push_back({ADD, 2, 1, 1});
+    program.push_back({STORE, 0, 2, 0, DATA_LOCATION_IN_MEMORY}); // Store the result
+    program.push_back({LOAD, 3, 0, 0, DATA_LOCATION_IN_MEMORY}); // Load second number
+    program.push_back({ADD, 0, 3, 1});
+    
     program.push_back({HALT}); // End of program
 }
