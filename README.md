@@ -14,7 +14,7 @@
 Для сборки проекта используйте следующую команду, указав путь к библиотеке SystemC:
 
 ```bash
-make SYSTEMC_HOME=/path/to/systemc
+make SYSTEMC_HOME=/path/to/systemc SYSTEMC_LIB=/path/to/systemc/lib
 ```
 #### или docker
 ```bash
