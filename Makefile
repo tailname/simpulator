@@ -1,8 +1,9 @@
 # Путь к установке SystemC
 SYSTEMC_HOME ?= /home/user/lib/systemc/install
+SYSTEMC_LIB ?= $(SYSTEMC_HOME)/lib-linux64
 
 CXX = g++
-CXXFLAGS = -I$(SYSTEMC_HOME)/include -L$(SYSTEMC_HOME)/lib -I./src -std=c++17 -Wl,-rpath=$(SYSTEMC_HOME)/lib
+CXXFLAGS = -I$(SYSTEMC_HOME)/include -L$(SYSTEMC_LIB) -I./src -std=c++14 -Wl,-rpath=$(SYSTEMC_LIB)/lib-linux64
 LDFLAGS = -lsystemc -lm
 #LD ?= /user/bin/ld
 # Целевой исполняемый файл

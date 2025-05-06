@@ -16,7 +16,11 @@
 ```bash
 make SYSTEMC_HOME=/path/to/systemc
 ```
-
+#### или docker
+```bash
+docker build . --no-cache -t simpulator
+docker run -it simpulator ./simulation
+```
 ## Тестовая программа
 По умолчанию тестовая программа вычисляет последовательность Фибоначчи. Для проверки корректности работы при выполнении инструкции `STORE` выводится содержимое всех регистров в консоль.
 
