@@ -17,7 +17,7 @@ SC_MODULE(Processor) {
         dont_initialize();
 
         SC_METHOD(handle_start);
-        sensitive << start_signal.pos() << reset_signal.neg();
+        sensitive << start_signal.pos() << reset_signal.pos();
         dont_initialize();
     }
     void print_registers();

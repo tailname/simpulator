@@ -81,7 +81,11 @@ void TestBench::test_processor() {
 
     // 4. wait for processor to finish execution
     std::cout << sc_time_stamp() << ": Testbench waiting for simulation end..." << std::endl;
-    wait(5000, SC_NS); // wait for a while to let the processor execute
+    
+    for(int i =0; i<1000; ++i) {
+        wait();
+    }
+    //wait(5000, SC_NS); // wait for a while to let the processor execute
 
     std::cout << sc_time_stamp() << ": Testbench finished. Stopping simulation." << std::endl;
     sc_stop(); // stop the simulation
@@ -124,6 +128,7 @@ void TestBench::load_program(addr_t start_addr) {
 
     for (size_t i = 0; i < program.size(); ++i) {
         data_t encoded_inst = encode_instruction(program[i]);
+        cout<<hex<<encoded_inst;
         mem_write(start_addr + i * DATA_WIDTH, encoded_inst); // Write instruction to memory
     }
 };
@@ -131,7 +136,7 @@ void TestBench::load_program(addr_t start_addr) {
 void TestBench::mem_write(addr_t address, data_t data) {
     tlm_generic_payload trans;
     sc_time delay = SC_ZERO_TIME;
-    unsigned char data_ptr[sizeof(data_t)];
+    unsigned char data_ptr[DATA_WIDTH];
     memccpy(data_ptr, &data, 0, DATA_WIDTH); // Copy data to data
 
     trans.set_command(TLM_WRITE_COMMAND);
@@ -152,3 +157,42 @@ void TestBench::mem_write(addr_t address, data_t data) {
 
 
 
+void TestBench::test_encoder(){
+    if (DATA_WIDTH != 32 || INSTRUCTION_WIDTH != 8 || REG_WIDTH != 4 || ADDR_WIDTH != 16) {
+        return;
+    }
+    Instruction inst1 = {LOAD, 0, 0, 0, 0x10};
+    Instruction inst2 = {ADD, 1, 0, 2};
+    Instruction inst3 = {STORE, 0, 1, 0, 0x20};
+    Instruction inst4 = {HALT};
+
+    data_t encoded_inst1 = encode_instruction(inst1);
+    data_t encoded_inst2 = encode_instruction(inst2);
+    data_t encoded_inst3 = encode_instruction(inst3);
+    data_t encoded_inst4 = encode_instruction(inst4);
+
+    assert(encoded_inst1 == 0b0000'0000'0000000000010000'00000000); // Check the encoding of LOAD instruction
+    assert(encoded_inst2 == 0b0010'0001'0000'0010'00000000'00000000); // Check the encoding of ADD instruction
+    assert(encoded_inst3 == 0b0001'0000000000100000'0001'00000000); // Check the encoding of STORE instruction
+    assert(encoded_inst4 == 0b0011'00000000000000000000000000000); // Check the encoding of HALT instruction
+}
+
+void TestBench::test_decoder() {
+    if (DATA_WIDTH != 32 || INSTRUCTION_WIDTH != 8 || REG_WIDTH != 4 || ADDR_WIDTH != 16) {
+        return;
+    }
+    Instruction decoded_inst1;
+    Instruction decoded_inst2;
+    Instruction decoded_inst3;
+    Instruction decoded_inst4;
+
+    decoded_inst1.decode(0b0000'0000'0000000000010000'00000000);
+    decoded_inst2.decode(0b0010'0001'0000'0010'00000000'00000000);
+    decoded_inst3.decode(0b0001'0000000000100000'0001'00000000);
+    decoded_inst4.decode(0b0011'00000000000000000000000000000);
+    
+    assert(decoded_inst1.opcode == LOAD && decoded_inst1.reg_dst == 0 && decoded_inst1.address == 0x10); // Check the decoding of LOAD instruction
+    assert(decoded_inst2.opcode == ADD && decoded_inst2.reg_dst == 1 && decoded_inst2.reg_src == 2); // Check the decoding of ADD instruction
+    assert(decoded_inst3.opcode == STORE && decoded_inst3.reg_src == 1 && decoded_inst3.address == 0x20); // Check the decoding of STORE instruction
+    assert(decoded_inst4.opcode == HALT); // Check the decoding of HALT instruction
+}
