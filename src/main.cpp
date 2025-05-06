@@ -37,6 +37,9 @@ int sc_main(int argc, char* argv[]) {
     test->mem_socket.bind(memory->bench_socket);
     processor->mem_socket.bind(memory->proc_socket);
     
+    // start tasting memory
+    //test->test_memory();
+    // stop tasting memory  
 
     // start tasting encoder and decoder
     test->test_encoder();

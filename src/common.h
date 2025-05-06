@@ -20,6 +20,9 @@ using namespace tlm_utils;
 #define DATA_WIDTH 32 // Data width in bits
 #define INSTRUCTION_WIDTH 4 // Instruction width in bits
 
+//For testing purposes
+#define DATA_LOCATION_IN_MEMORY 0x100 // Memory location for data
+
 
 
 typedef sc_dt::sc_uint<ADDR_WIDTH> addr_t;
@@ -41,14 +44,19 @@ struct Instruction {
 
     void decode(data_t raw_inst) {
         opcode   = static_cast<InstructionType>((raw_inst >> (DATA_WIDTH - INSTRUCTION_WIDTH)));
-        reg_dst  = ((raw_inst << INSTRUCTION_WIDTH) >> (DATA_WIDTH - REG_WIDTH) ) & 0xF;
+        reg_dst  = ((raw_inst << INSTRUCTION_WIDTH) >> (DATA_WIDTH - REG_WIDTH +) ) & 0xF;
         reg_src  = ((raw_inst << (INSTRUCTION_WIDTH + REG_WIDTH)) >> (DATA_WIDTH - REG_WIDTH*2)) & 0xF;
         if (opcode == ADD) {
             reg_src2 = ((raw_inst << (INSTRUCTION_WIDTH + REG_WIDTH*2)) >> (DATA_WIDTH - REG_WIDTH*3)) & 0xF; // see the Redme
             address = 0; // default to 0 for ADD instruction
-       } else {
+       } else if (opcode == STORE) {
             reg_src2 = 0; // default to 0 for LOAD and STORE instructions
-            address  = (raw_inst << INSTRUCTION_WIDTH) >> (DATA_WIDTH - ADDR_WIDTH) & 0xFF; 
+            address  = (raw_inst << INSTRUCTION_WIDTH) >> (DATA_WIDTH - ADDR_WIDTH) & 0xFFF; 
+            cout<<"Decode Address: " << address << endl;
+       }
+       else {
+            reg_src2 = 0; // default to 0 for LOAD and STORE instructions
+            address  = (raw_inst << (INSTRUCTION_WIDTH + ADDR_WIDTH) ) >> (DATA_WIDTH - ADDR_WIDTH) & 0xFFF;
        }
     }
 };

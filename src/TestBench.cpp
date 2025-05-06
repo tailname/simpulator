@@ -15,9 +15,7 @@ void TestBench::test_memory() {
 
     mem_socket->b_transport(trans, delay);
     
-    if (trans.is_response_ok()) {
-        std::cout << "Write successful at time " << sc_time_stamp() << std::endl;
-    }
+    assert(trans.is_response_ok());
 
     // second test, read from address 0
     trans.set_command(TLM_READ_COMMAND);
@@ -28,10 +26,7 @@ void TestBench::test_memory() {
 
     mem_socket->b_transport(trans, delay);
     
-    if (trans.is_response_ok()) {
-        std::cout << "Read successful at time " << sc_time_stamp() 
-                  << ", value = 0x" << std::hex << *(uint32_t*)data << std::endl;
-    }
+    assert(trans.is_response_ok());
 
     // third test, read invalid address
     trans.set_command(TLM_READ_COMMAND);
@@ -48,9 +43,7 @@ void TestBench::test_memory() {
     
     
     
-    if (!trans.is_response_ok()) {
-        std::cout << "Address error detected at time " << sc_time_stamp() << std::endl;
-    }
+    assert(!trans.is_response_ok());
 };
 
 
@@ -69,7 +62,12 @@ void TestBench::test_processor() {
 
     // 2. load program into memory
     addr_t prog_start_addr = 0x0; 
+    store_program(); // Store the program in the vector
     load_program(prog_start_addr);
+
+    // 3. Load data into memory (optional)
+    mem_write(DATA_LOCATION_IN_MEMORY, 0x1); 
+    //mem_write(DATA_LOCATION_IN_MEMORY + DATA_WIDTH/8, 0x1); 
 
     // 3. send start signal to processor
     start_address.write(prog_start_addr);
@@ -82,13 +80,11 @@ void TestBench::test_processor() {
     // 4. wait for processor to finish execution
     std::cout << sc_time_stamp() << ": Testbench waiting for simulation end..." << std::endl;
     
-    for(int i =0; i<1000; ++i) {
-        wait();
-    }
-    //wait(5000, SC_NS); // wait for a while to let the processor execute
+  
+    wait(5000, SC_NS); // wait for a while to let the processor execute
 
     std::cout << sc_time_stamp() << ": Testbench finished. Stopping simulation." << std::endl;
-    sc_stop(); // stop the simulation
+    
 };
 
 // fucntion to encode instruction
@@ -120,16 +116,10 @@ data_t TestBench::encode_instruction(Instruction inst) {
 
 // function to load program into memory
 void TestBench::load_program(addr_t start_addr) {
-    // Example program: LOAD, ADD, STORE, HALT
-    program.push_back({LOAD, 0, 0, 0, 0x10}); // Load from address 0x10 to register 0
-    program.push_back({ADD, 1, 0, 2}); // Add register 0 and register 2, store in register 1
-    program.push_back({STORE, 1, 0, 0, 0x20}); // Store register 1 to address 0x20
-    program.push_back({HALT}); // Halt the processor
-
     for (size_t i = 0; i < program.size(); ++i) {
         data_t encoded_inst = encode_instruction(program[i]);
         cout<< "Encoded instruction: " << encoded_inst << endl;
-        mem_write(start_addr + i * DATA_WIDTH, encoded_inst); // Write instruction to memory
+        mem_write(start_addr + i * DATA_WIDTH/8, encoded_inst); // Write instruction to memory
     }
 };
 
@@ -162,7 +152,8 @@ void TestBench::mem_write(addr_t address, data_t data) {
 
 
 void TestBench::test_encoder(){
-    if (DATA_WIDTH != 32 || INSTRUCTION_WIDTH != 8 || REG_WIDTH != 4 || ADDR_WIDTH != 16) {
+    if (DATA_WIDTH != 32 || INSTRUCTION_WIDTH != 4  || REG_WIDTH != 4 || ADDR_WIDTH != 16) {
+        assert(false && "Invalid data width or instruction width or register width or address width");
         return;
     }
     Instruction inst1 = {LOAD, 0, 0, 0, 0x10};
@@ -175,14 +166,20 @@ void TestBench::test_encoder(){
     data_t encoded_inst3 = encode_instruction(inst3);
     data_t encoded_inst4 = encode_instruction(inst4);
 
+    cout<< "Encoded instruction 1: " << encoded_inst1 << endl;
+    cout<< "Encoded instruction 2: " << encoded_inst2 << endl;
+    cout<< "Encoded instruction 3: " << encoded_inst3 << endl;
+    cout<< "Encoded instruction 4: " << encoded_inst4 << endl;
+
     assert(encoded_inst1 == 0b0000'0000'0000000000010000'00000000); // Check the encoding of LOAD instruction
     assert(encoded_inst2 == 0b0010'0001'0000'0010'00000000'00000000); // Check the encoding of ADD instruction
     assert(encoded_inst3 == 0b0001'0000000000100000'0001'00000000); // Check the encoding of STORE instruction
-    assert(encoded_inst4 == 0b0011'00000000000000000000000000000); // Check the encoding of HALT instruction
+    assert(encoded_inst4 == 0b0011'0000000000000000000000000000); // Check the encoding of HALT instruction
 }
 
 void TestBench::test_decoder() {
-    if (DATA_WIDTH != 32 || INSTRUCTION_WIDTH != 8 || REG_WIDTH != 4 || ADDR_WIDTH != 16) {
+    if (DATA_WIDTH != 32 || INSTRUCTION_WIDTH != 4 || REG_WIDTH != 4 || ADDR_WIDTH != 16) {
+        assert(false && "Invalid data width or instruction width or register width or address width");
         return;
     }
     Instruction decoded_inst1;
@@ -199,4 +196,22 @@ void TestBench::test_decoder() {
     assert(decoded_inst2.opcode == ADD && decoded_inst2.reg_dst == 1 && decoded_inst2.reg_src == 2); // Check the decoding of ADD instruction
     assert(decoded_inst3.opcode == STORE && decoded_inst3.reg_src == 1 && decoded_inst3.address == 0x20); // Check the decoding of STORE instruction
     assert(decoded_inst4.opcode == HALT); // Check the decoding of HALT instruction
+}
+
+
+// Example program: fibonacci sequence
+    //for (int i = 0; i < 1; ++i ) {
+        //program.push_back({LOAD, 0, 0, 0, DATA_LOCATION_IN_MEMORY + i*DATA_WIDTH});
+        //program.push_back({LOAD, 1, 0, 0, DATA_LOCATION_IN_MEMORY + (i+1)*DATA_WIDTH}); 
+        //program.push_back({ADD, 2, 0, 1});
+        
+    //    program.push_back({STORE, 0, 2, 0, DATA_LOCATION_IN_MEMORY + (i+2)*(DATA_WIDTH/8)});
+    //}
+    //program.push_back({HALT}); // End of program
+
+void TestBench::store_program() {
+
+    program.push_back({LOAD, 1, 0, 0, DATA_LOCATION_IN_MEMORY}); // Load first number
+    program.push_back({STORE, 0, 1, 0, DATA_LOCATION_IN_MEMORY}); // Store the result
+    program.push_back({HALT}); // End of program
 }

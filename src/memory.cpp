@@ -7,6 +7,8 @@ void Memory::b_transport(tlm_generic_payload& trans, sc_time& delay) {
     uint64 addr = trans.get_address();
     unsigned char* data = trans.get_data_ptr();
     unsigned int len = trans.get_data_length();
+    cout<<"Memory::b_transport: addr="<<addr<<" len="<<len<<endl;
+    cout<<"Memory::b_transport: data="<<data<<endl;
 
 
     if (addr + len >= MAX_MEMORY_SIZE) {

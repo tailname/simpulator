@@ -16,9 +16,9 @@ void Processor::execute() {
         cout<<"current instruction word: " << hex<<current_instruction_word << endl;
         inst.decode(current_instruction_word); // Decode the instruction
 
-        pc += DATA_WIDTH; // Increment the program counter
+        pc += DATA_WIDTH/8; // Increment the program counter
         print_registers();
-        cout <<" " << inst.opcode << " " << inst.reg_dst << " " << inst.reg_src << " " << inst.reg_src2 << endl; // Print the instruction
+        
         switch (inst.opcode) {
             case LOAD:
                 mem_read(inst.address, registers[inst.reg_dst]); // Load data from memory to register
@@ -61,7 +61,7 @@ void Processor::mem_read(addr_t address, data_t& data) {
     unsigned char data_ptr[DATA_WIDTH / 8]; 
 
     trans.set_command(TLM_READ_COMMAND);
-    trans.set_address(address);
+    trans.set_address(address.to_uint64());
     trans.set_data_ptr(data_ptr);
     trans.set_data_length(DATA_WIDTH / 8);
     trans.set_streaming_width(DATA_WIDTH / 8);
@@ -82,6 +82,7 @@ void Processor::mem_read(addr_t address, data_t& data) {
 };
 
 void Processor::mem_write(addr_t address, data_t data) {
+    cout<<"Adress = "<<address.to_uint64()<<endl;
     tlm_generic_payload trans;
     sc_time delay = sc_time(0, SC_NS);
     unsigned char data_ptr[DATA_WIDTH / 8];
