@@ -13,6 +13,7 @@ void Processor::execute() {
 
         mem_read(pc, current_instruction_word); // Read instruction from memory
         Instruction inst;
+        cout<<"current instruction word: " << hex<<current_instruction_word << endl;
         inst.decode(current_instruction_word); // Decode the instruction
 
         pc += DATA_WIDTH; // Increment the program counter
@@ -30,6 +31,7 @@ void Processor::execute() {
                 break;
             case HALT:
                 is_running = false; // Stop execution
+                break;
             default:
                 SC_REPORT_ERROR("Processor", "Unknown instruction opcode");
                 is_running = false; 

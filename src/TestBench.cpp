@@ -128,7 +128,7 @@ void TestBench::load_program(addr_t start_addr) {
 
     for (size_t i = 0; i < program.size(); ++i) {
         data_t encoded_inst = encode_instruction(program[i]);
-        cout<<hex<<encoded_inst;
+        cout<< "Encoded instruction: " << encoded_inst << endl;
         mem_write(start_addr + i * DATA_WIDTH, encoded_inst); // Write instruction to memory
     }
 };
@@ -136,13 +136,17 @@ void TestBench::load_program(addr_t start_addr) {
 void TestBench::mem_write(addr_t address, data_t data) {
     tlm_generic_payload trans;
     sc_time delay = SC_ZERO_TIME;
-    unsigned char data_ptr[DATA_WIDTH];
-    memccpy(data_ptr, &data, 0, DATA_WIDTH); // Copy data to data
+    unsigned char data_ptr[DATA_WIDTH/8];
+    
+    for (int i = 0; i < DATA_WIDTH / 8; ++i) {
+        data_ptr[i] = (data >> ((DATA_WIDTH / 8 - 1 - i) * 8)) & 0xFF; // Big-endian conversion
+    }
 
+    
     trans.set_command(TLM_WRITE_COMMAND);
     trans.set_address(address);
     trans.set_data_ptr(data_ptr);
-    trans.set_data_length(DATA_WIDTH);
+    trans.set_data_length(DATA_WIDTH/8);
     trans.set_response_status(TLM_INCOMPLETE_RESPONSE);
 
     mem_socket->b_transport(trans, delay);

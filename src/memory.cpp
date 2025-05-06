@@ -15,14 +15,14 @@ void Memory::b_transport(tlm_generic_payload& trans, sc_time& delay) {
 
     if (cmd == tlm::TLM_READ_COMMAND) {
         // Read data from memory
-        memccpy(data, &memory[addr],0, len);
+        memcpy(data, &memory[addr], len);
     } else if (cmd == tlm::TLM_WRITE_COMMAND) {
         // Write data to memory
-        memccpy(&memory[addr], data,0, len);
+        memcpy(&memory[addr], data,len);
     } else {
         SC_REPORT_ERROR("Memory", "Invalid command");
     }
-
+    
     delay += sc_time(10, SC_NS); // Simulate a delay
     trans.set_response_status(TLM_OK_RESPONSE);
 

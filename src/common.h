@@ -40,10 +40,10 @@ struct Instruction {
     addr_t address; // for LOAD and STORE instructions
 
     void decode(data_t raw_inst) {
-        InstructionType instruction   = static_cast<InstructionType>((raw_inst >> (DATA_WIDTH - INSTRUCTION_WIDTH)));
+        opcode   = static_cast<InstructionType>((raw_inst >> (DATA_WIDTH - INSTRUCTION_WIDTH)));
         reg_dst  = ((raw_inst << INSTRUCTION_WIDTH) >> (DATA_WIDTH - REG_WIDTH) ) & 0xF;
         reg_src  = ((raw_inst << (INSTRUCTION_WIDTH + REG_WIDTH)) >> (DATA_WIDTH - REG_WIDTH*2)) & 0xF;
-        if (instruction == ADD) {
+        if (opcode == ADD) {
             reg_src2 = ((raw_inst << (INSTRUCTION_WIDTH + REG_WIDTH*2)) >> (DATA_WIDTH - REG_WIDTH*3)) & 0xF; // see the Redme
             address = 0; // default to 0 for ADD instruction
        } else {
