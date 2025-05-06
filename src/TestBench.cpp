@@ -51,12 +51,12 @@ void TestBench::test_processor() {
     std::cout << sc_time_stamp() << ": Testbench process starting..." << std::endl;
 
     // 1. reset processor 
-    rst.write(true);
+    reset_signal.write(true);
     start_signal.write(false);
     start_address.write(0);
     std::cout << sc_time_stamp() << ": Asserting reset..." << std::endl;
     wait(); // wait for reset to be asserted
-    rst.write(false);
+    reset_signal.write(false);
     std::cout << sc_time_stamp() << ": Deasserting reset." << std::endl;
     wait(); // wait for reset to be deasserted
 
@@ -67,7 +67,7 @@ void TestBench::test_processor() {
 
     // 3. Load data into memory (optional)
     mem_write(DATA_LOCATION_IN_MEMORY, 0x1); 
-    //mem_write(DATA_LOCATION_IN_MEMORY + DATA_WIDTH/8, 0x1); 
+    mem_write(DATA_LOCATION_IN_MEMORY + DATA_WIDTH/8, 0x1); 
 
     // 3. send start signal to processor
     start_address.write(prog_start_addr);
@@ -118,7 +118,6 @@ data_t TestBench::encode_instruction(Instruction inst) {
 void TestBench::load_program(addr_t start_addr) {
     for (size_t i = 0; i < program.size(); ++i) {
         data_t encoded_inst = encode_instruction(program[i]);
-        cout<< "Encoded instruction: " << encoded_inst << endl;
         mem_write(start_addr + i * DATA_WIDTH/8, encoded_inst); // Write instruction to memory
     }
 };
@@ -141,12 +140,8 @@ void TestBench::mem_write(addr_t address, data_t data) {
 
     mem_socket->b_transport(trans, delay);
    
-    if (trans.is_response_ok()) {
-        std::cout << "Write successful at time " << sc_time_stamp() << std::endl;
-    }
-    else {
-        std::cout << "Write failed at time " << sc_time_stamp() << std::endl;
-    }
+    assert(trans.is_response_ok());
+    
 };
 
 
@@ -208,23 +203,14 @@ void TestBench::test_decoder() {
 }
 
 
-// Example program: fibonacci sequence
-    //for (int i = 0; i < 1; ++i ) {
-        //program.push_back({LOAD, 0, 0, 0, DATA_LOCATION_IN_MEMORY + i*DATA_WIDTH});
-        //program.push_back({LOAD, 1, 0, 0, DATA_LOCATION_IN_MEMORY + (i+1)*DATA_WIDTH}); 
-        //program.push_back({ADD, 2, 0, 1});
-        
-    //    program.push_back({STORE, 0, 2, 0, DATA_LOCATION_IN_MEMORY + (i+2)*(DATA_WIDTH/8)});
-    //}
-    //program.push_back({HALT}); // End of program
-
 void TestBench::store_program() {
-
-    program.push_back({LOAD, 1, 0, 0, DATA_LOCATION_IN_MEMORY}); // Load first number
-    program.push_back({ADD, 2, 1, 1});
-    program.push_back({STORE, 0, 2, 0, DATA_LOCATION_IN_MEMORY}); // Store the result
-    program.push_back({LOAD, 3, 0, 0, DATA_LOCATION_IN_MEMORY}); // Load second number
-    program.push_back({ADD, 0, 3, 1});
-    
+    for (int i = 0; i < 10; ++i ) {
+        program.push_back({LOAD, 0, 0, 0, DATA_LOCATION_IN_MEMORY + i*(DATA_WIDTH/8)});
+        program.push_back({LOAD, 1, 0, 0, DATA_LOCATION_IN_MEMORY + (i+1)*(DATA_WIDTH/8)}); 
+        program.push_back({ADD, 2, 0, 1});
+        program.push_back({STORE, 0, 2, 0, DATA_LOCATION_IN_MEMORY + (i+2)*(DATA_WIDTH/8)});
+    }
     program.push_back({HALT}); // End of program
+
+    
 }

@@ -14,7 +14,7 @@ int sc_main(int argc, char* argv[]) {
     Processor * processor;
 
     sc_signal<bool> clk;
-    sc_signal<bool> rst;
+    sc_signal<bool> reset_signal;
     sc_signal<bool> start_signal;
     sc_signal<addr_t> start_address;
 
@@ -26,10 +26,10 @@ int sc_main(int argc, char* argv[]) {
     processor->clk(clk);
     
     processor->start_signal(start_signal);
-    processor->reset_signal(rst);
+    processor->reset_signal(reset_signal);
     processor->start_address(start_address);
         
-    test->rst(rst);
+    test->reset_signal(reset_signal);
     test->clk(clk);
     test->start_signal(start_signal);
     test->start_address(start_address);
@@ -38,7 +38,7 @@ int sc_main(int argc, char* argv[]) {
     processor->mem_socket.bind(memory->proc_socket);
     
     // start tasting memory
-    //test->test_memory();
+    test->test_memory();
     // stop tasting memory  
 
     // start tasting encoder and decoder
@@ -49,7 +49,7 @@ int sc_main(int argc, char* argv[]) {
     // start tasting processor
     clk.write(0);
     start_signal.write(0);
-    rst.write(0);
+    reset_signal.write(0);
 
     for(int i = 0; i < 25000; ++i) {
         //std::cout << "Simulation time: " << sc_time_stamp() << std::endl;

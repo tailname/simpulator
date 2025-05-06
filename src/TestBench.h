@@ -11,9 +11,9 @@ SC_MODULE(TestBench) {
     void test_memory();
     simple_initiator_socket<TestBench> mem_socket;
     
-    sc_inout<bool> rst;
-    sc_inout<bool> start_signal;
-    sc_inout<addr_t> start_address;
+    sc_out<bool> reset_signal;
+    sc_out<bool> start_signal;
+    sc_out<addr_t> start_address;
     sc_in<bool> clk;
 
     SC_CTOR(TestBench) : mem_socket("mem_socket") {

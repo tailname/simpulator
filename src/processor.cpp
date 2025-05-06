@@ -3,7 +3,7 @@
 
 void Processor::execute() {
     data_t current_instruction_word;
-    cout<<"take clock"<<endl;
+    
     while(true) {
 
 
@@ -13,17 +13,16 @@ void Processor::execute() {
 
         mem_read(pc, current_instruction_word); // Read instruction from memory
         Instruction inst;
-        cout<<"current instruction word: " << hex<<current_instruction_word << endl;
         inst.decode(current_instruction_word); // Decode the instruction
 
         pc += DATA_WIDTH/8; // Increment the program counter
-        print_registers();
         
         switch (inst.opcode) {
             case LOAD:
                 mem_read(inst.address, registers[inst.reg_dst]); // Load data from memory to register
                 break;
             case STORE:
+                print_registers();
                 mem_write(inst.address, registers[inst.reg_src]); // Store data from register to memory
                 break;
             case ADD:
@@ -47,10 +46,10 @@ void Processor::handle_start() {
     if(reset_signal.read()) {
         is_running = false; // Stop execution on reset
         pc = 0;
-        cout<<"take reset signal"<<endl;
+        
         return;
     }
-    cout<<"take start signal"<<endl;
+    
     pc = start_address.read(); 
     is_running = true;     
 };
@@ -82,7 +81,6 @@ void Processor::mem_read(addr_t address, data_t& data) {
 };
 
 void Processor::mem_write(addr_t address, data_t data) {
-    cout<<"Adress = "<<address.to_uint64()<<endl;
     tlm_generic_payload trans;
     sc_time delay = sc_time(0, SC_NS);
     unsigned char data_ptr[DATA_WIDTH / 8];
